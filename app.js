@@ -18,20 +18,20 @@ var campgroundSchema = new mongoose.Schema({
 var Campground = mongoose.model("Campground", campgroundSchema);
 
 // Creates a new campgrounda and adds it to the database
-// Campground.create({
-//     name: "Granite Hill",
-//     image: "https://image.shutterstock.com/image-photo/man-looking-stars-next-campfire-260nw-603533180.jpg",
-//     description: "This is a huge granite hill"
-// },
-//     function (err, campground) {
-//     if (err) {
-//         console.log(err);
-//     }
-//     else {
-//         console.log("NEW CAMPGROUND CREATED");
-//         console.log(campground);
-//     }
-// });
+Campground.create({
+    name: "Granite Hill",
+    image: "https://image.shutterstock.com/image-photo/man-looking-stars-next-campfire-260nw-603533180.jpg",
+    description: "This is a huge granite hill"
+},
+    function (err, campground) {
+    if (err) {
+        console.log(err);
+    }
+    else {
+        console.log("NEW CAMPGROUND CREATED");
+        console.log(campground);
+    }
+});
 
 app.get("/", function (req, res) {
     res.render("landing");    
