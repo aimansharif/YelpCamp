@@ -15,9 +15,10 @@ var campgroundSchema = new mongoose.Schema({
     description: String
 });
 
+//creates a mongoose model schema
 var Campground = mongoose.model("Campground", campgroundSchema);
 
-// Creates a new campgrounda and adds it to the database
+// Creates a new campground and adds it to the database
 Campground.create({
     name: "Granite Hill",
     image: "https://image.shutterstock.com/image-photo/man-looking-stars-next-campfire-260nw-603533180.jpg",
@@ -33,10 +34,12 @@ Campground.create({
     }
 });
 
+//default route- homepage YelpCamp
 app.get("/", function (req, res) {
     res.render("landing");    
 });
 
+//Shows all campgrounds from the Mongo Database
 app.get("/campgrounds", function (req, res) {
     //Get all campgrounds from DB
     Campground.find({}, function (err, allCampgrounds) {
@@ -51,6 +54,7 @@ app.get("/campgrounds", function (req, res) {
     });
 });
 
+//shows the add new campground page
 app.get("/campgrounds/new", function (req, res) {
     res.render("new");    
 });
@@ -69,6 +73,7 @@ app.get("/campgrounds/:id", function (req, res) {
     });
 });
 
+//adds the new campground using a POST request
 app.post("/campgrounds", function (req, res) {
     //get data from form and add to campgrounds array
     var name = req.body.name;
@@ -89,6 +94,7 @@ app.post("/campgrounds", function (req, res) {
     });
 });
 
+//Server listens on PORT 3000
 var port = process.env.PORT || 3000;
 app.listen(port, function () {
     console.log("Server listening on port 3000");    
