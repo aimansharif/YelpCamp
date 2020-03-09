@@ -1,38 +1,16 @@
 var express     = require("express"),
     app         = express(),
     bodyParser  = require("body-parser"),
-    mongoose    = require("mongoose");
+    mongoose    = require("mongoose"),
+    Campground  = require("./models/campground"),
+    Comment     = require("./models/comment"),
+    seedDB      = require("./seeds");
 
 //creates and connects mongoose to DB yelp_camp
-mongoose.connect("mongodb://localhost/yelp_camp", {useNewUrlParser: true});
+mongoose.connect("mongodb://localhost/yelp_camp", {useNewUrlParser: true, useUnifiedTopology: true });
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
-
-//SCHEMA SETUP
-var campgroundSchema = new mongoose.Schema({
-    name: String,
-    image: String,
-    description: String
-});
-
-//creates a mongoose model schema
-var Campground = mongoose.model("Campground", campgroundSchema);
-
-// Creates a new campground and adds it to the database
-Campground.create({
-    name: "Granite Hill",
-    image: "https://image.shutterstock.com/image-photo/man-looking-stars-next-campfire-260nw-603533180.jpg",
-    description: "This is a huge granite hill"
-},
-    function (err, campground) {
-    if (err) {
-        console.log(err);
-    }
-    else {
-        console.log("NEW CAMPGROUND CREATED");
-        console.log(campground);
-    }
-});
+seedDB();
 
 //default route- homepage YelpCamp
 app.get("/", function (req, res) {
@@ -49,26 +27,28 @@ app.get("/campgrounds", function (req, res) {
         else {
             //renders the campgrounds which are in the db
             // {campgrounds(in the campgrounds.ejs page campgrounds, another file): allCampgrounds(in the function allCampgrounds)}
-            res.render("index", { campgrounds: allCampgrounds });
+            res.render("campgrounds/index", { campgrounds: allCampgrounds });
         }
     });
 });
 
 //shows the add new campground page
 app.get("/campgrounds/new", function (req, res) {
-    res.render("new");    
+    res.render("campgrounds/new");    
 });
 
 //SHOW - shows more info about one campground
 app.get("/campgrounds/:id", function (req, res) {
     //find campgrounds with provided ID
-    Campground.findById(req.params.id, function (err, foundCamp) {
+
+    //Finding a campground using findbyId, populating the comments on that campground and then with .exec executes the function with the call back 
+    Campground.findById(req.params.id).populate("comments").exec(function (err, foundCampground) {
         if (err) {
             console.log(err);
         }
         else {
             //render show template with that campground
-            res.render("show", {campground: foundCamp});
+            res.render("campgrounds/show", {campground: foundCampground});
         }
     });
 });
@@ -94,8 +74,47 @@ app.post("/campgrounds", function (req, res) {
     });
 });
 
+
+// ==================
+// COMMENTS ROUTES
+// ==================
+
+app.get("/campgrounds/:id/comments/new", function(req, res){
+    // Find campground by id
+
+    Campground.findById(req.params.id, function(err, campground){
+        if(err){
+            console.log(err);
+        } else {
+            res.render("comments/new", {campground: campground});
+        }
+    });
+});
+
+app.post("/campgrounds/:id/comments", function(req, res){
+    //lookup campground using id
+    Campground.findById(req.params.id, function(err, campground){
+        if(err){
+            console.log(err);
+        } else{
+            //create new comments
+            Comment.create(req.body.comment, function(err, comment){
+                if(err){
+                    console.log(err);
+                } else {
+                    campground.comments.push(comment);
+                    campground.save();
+                    res.redirect("/campgrounds/" + campground._id);
+                }
+            });
+        }
+    });
+});
+
+
+
 //Server listens on PORT 3000
 var port = process.env.PORT || 3000;
 app.listen(port, function () {
-    console.log("Server listening on port 3000");    
+    console.log("Server listening on port " +  port);    
 });
