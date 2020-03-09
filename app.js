@@ -10,6 +10,7 @@ var express     = require("express"),
 mongoose.connect("mongodb://localhost/yelp_camp", {useNewUrlParser: true, useUnifiedTopology: true });
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
+app.use(express.static(__dirname + "/public"));
 seedDB();
 
 //default route- homepage YelpCamp
@@ -81,11 +82,13 @@ app.post("/campgrounds", function (req, res) {
 
 app.get("/campgrounds/:id/comments/new", function(req, res){
     // Find campground by id
+    // After finding the id, we can use that id to associate it with the comments 
 
     Campground.findById(req.params.id, function(err, campground){
         if(err){
             console.log(err);
         } else {
+            // Render the form
             res.render("comments/new", {campground: campground});
         }
     });
@@ -102,8 +105,8 @@ app.post("/campgrounds/:id/comments", function(req, res){
                 if(err){
                     console.log(err);
                 } else {
-                    campground.comments.push(comment);
-                    campground.save();
+                    campground.comments.push(comment); //push that comment into the campground
+                    campground.save(); //save the campground
                     res.redirect("/campgrounds/" + campground._id);
                 }
             });
