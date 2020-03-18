@@ -75,7 +75,6 @@ app.post("/campgrounds", function (req, res) {
     });
 });
 
-
 // ==================
 // COMMENTS ROUTES
 // ==================
@@ -113,8 +112,6 @@ app.post("/campgrounds/:id/comments", function(req, res){
         }
     });
 });
-
-
 
 //Server listens on PORT 3000
 var port = process.env.PORT || 3000;
