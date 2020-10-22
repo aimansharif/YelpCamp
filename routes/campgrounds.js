@@ -51,7 +51,6 @@ router.post("/", isLoggedIn, function (req, res) {
 //SHOW - shows more info about one campground
 router.get("/:id", function (req, res) {
     //find campgrounds with provided ID
-
     //Finding a campground using findbyId, populating the comments on that campground and then with .exec executes the function with the call back 
     Campground.findById(req.params.id).populate("comments").exec(function (err, foundCampground) {
         if (err) {
