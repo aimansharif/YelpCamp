@@ -1,6 +1,7 @@
 var express = require("express");
 var router = express.Router({mergeParams: true});
 var Campground = require("../models/campground");
+const campground = require("../models/campground");
 
 // INDEX - shows all campgrounds from the Mongo Database
 router.get("/", function (req, res) {
@@ -64,18 +65,18 @@ router.get("/:id", function (req, res) {
 });
 
 // EDIT - Campground
-router.get("/:id/edit", function(req, res){
+router.get("/:id/edit", checkCampgroundOwnership, function(req, res){
+    //check whether user is logged in
     Campground.findById(req.params.id, function(err, foundCampground){
-        if(err){
-            res.redirect("/campgrounds");
-        } else{
+        //does user own campground
+        if(foundCampground.author.id.equals(req.user._id)){
             res.render("campgrounds/edit", {campground: foundCampground});
         }
-    })
+    });
 });
 
 // UPDATE Campground
-router.put("/:id", isLoggedIn, function(req, res){
+router.put("/:id", checkCampgroundOwnership, function(req, res){
     // find and update the correct campground
     Campground.findByIdAndUpdate(req.params.id, req.body.campground, function(err, updatedCampground){
         if(err){
@@ -87,7 +88,7 @@ router.put("/:id", isLoggedIn, function(req, res){
 });
 
 // DESTROY - Campground Route
-router.delete("/:id", isLoggedIn, function(req, res){
+router.delete("/:id", checkCampgroundOwnership, function(req, res){
     Campground.findByIdAndRemove(req.params.id, function(err){
         if(err){
             res.redirect("/campgrounds");
@@ -103,6 +104,26 @@ function isLoggedIn(req, res, next){
         return next();
     }
     res.redirect("/login");
+}
+
+function checkCampgroundOwnership(req, res, next){
+    if(req.isAuthenticated()){
+        //does user own campground
+        Campground.findById(req.params.id, function(err, foundCampground){
+            if(err){
+                res.redirect("back");
+            } else{
+                //does user own campground
+                if(foundCampground.author.id.equals(req.user._id)){
+                    next(); //move to the next part of the function or body
+                } else {
+                    res.redirect("back");
+                }
+            }
+        });
+    } else {
+        res.redirect("back");
+    }
 }
 
 module.exports = router;
