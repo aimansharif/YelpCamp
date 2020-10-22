@@ -22,22 +22,6 @@ router.get("/new", isLoggedIn, function (req, res) {
     res.render("campgrounds/new");
 });
 
-//SHOW - shows more info about one campground
-router.get("/:id", function (req, res) {
-    //find campgrounds with provided ID
-
-    //Finding a campground using findbyId, populating the comments on that campground and then with .exec executes the function with the call back 
-    Campground.findById(req.params.id).populate("comments").exec(function (err, foundCampground) {
-        if (err) {
-            console.log(err);
-        }
-        else {
-            //render show template with that campground
-            res.render("campgrounds/show", {campground: foundCampground});
-        }
-    });
-});
-
 //CREATE - adds the new campground using a POST request
 router.post("/", isLoggedIn, function (req, res) {
     //get data from form and add to campgrounds array
@@ -61,6 +45,56 @@ router.post("/", isLoggedIn, function (req, res) {
             res.redirect("/campgrounds");
         }
     });
+});
+
+//SHOW - shows more info about one campground
+router.get("/:id", function (req, res) {
+    //find campgrounds with provided ID
+
+    //Finding a campground using findbyId, populating the comments on that campground and then with .exec executes the function with the call back 
+    Campground.findById(req.params.id).populate("comments").exec(function (err, foundCampground) {
+        if (err) {
+            console.log(err);
+        }
+        else {
+            //render show template with that campground
+            res.render("campgrounds/show", {campground: foundCampground});
+        }
+    });
+});
+
+// EDIT - Campground
+router.get("/:id/edit", function(req, res){
+    Campground.findById(req.params.id, function(err, foundCampground){
+        if(err){
+            res.redirect("/campgrounds");
+        } else{
+            res.render("campgrounds/edit", {campground: foundCampground});
+        }
+    })
+});
+
+// UPDATE Campground
+router.put("/:id", isLoggedIn, function(req, res){
+    // find and update the correct campground
+    Campground.findByIdAndUpdate(req.params.id, req.body.campground, function(err, updatedCampground){
+        if(err){
+            res.redirect("/campgrounds");
+        } else {
+            res.redirect("/campgrounds/" + req.params.id);
+        }
+    })
+});
+
+// DESTROY - Campground Route
+router.delete("/:id", isLoggedIn, function(req, res){
+    Campground.findByIdAndRemove(req.params.id, function(err){
+        if(err){
+            res.redirect("/campgrounds");
+        } else{
+            res.redirect("/campgrounds");
+        }
+    })
 });
 
 // function(middleware) tp check whether the user is logged in or not
