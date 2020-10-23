@@ -21,10 +21,11 @@ router.post("/register", function(req, res){
     // registers the created user
     User.register(newUser, req.body.password, function(err, user){
         if(err){
-            console.log(err);
-            return res.render("register");
+            req.flash("error", err.message);
+            return res.redirect("/register");
         }
         passport.authenticate("local")(req, res, function(){
+            req.flash("success", "Welcome to YelpCamp " + user.username);
             res.redirect("/campgrounds");
         });
     });
@@ -36,7 +37,6 @@ router.get("/login", function(req, res){
 });
 
 // handling login logic- user is presumed to exist already
-// router.post("/login", middleware, callback);
 router.post("/login", passport.authenticate("local",
     {
         successRedirect: "/campgrounds",
@@ -47,15 +47,8 @@ router.post("/login", passport.authenticate("local",
 // logout route: logs out user
 router.get("/logout", function(req, res){
     req.logout();
+    req.flash("success", "Logged you out");
     res.redirect("/campgrounds");
 });
-
-// function(middleware) tp check whether the user is logged in or not
-function isLoggedIn(req, res, next){
-    if(req.isAuthenticated()){
-        return next();
-    }
-    res.redirect("/login");
-}
 
 module.exports = router;
