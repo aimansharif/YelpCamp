@@ -19,7 +19,7 @@ var commentRoutes    = require("./routes/comments"),
 //creates and connects mongoose to DB yelp_camp
 // mongoose.connect("mongodb://localhost/yelp_camp", {useNewUrlParser: true, useUnifiedTopology: true }); //LOCAL HOST
 // mongodb+srv://aiman:yelpcamp@yelpcamp.chu8j.mongodb.net/yelpcamp?retryWrites=true&w=majority //MONGO ATLAS
-mongoose.connect("mongodb+srv://aiman:yelpcamp@yelpcamp.chu8j.mongodb.net/yelpcamp?retryWrites=true&w=majority", {useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(process.env.DATABASEURL); // App will connect to whatever the value of DATABASEURL
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
